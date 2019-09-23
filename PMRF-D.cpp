@@ -3,8 +3,17 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include "ICM/ICM.hpp"
 #include "utilities/io.hpp"
 #include "utilities/LAP.hpp"
+
+void reconstruct_image(std::vector<std::vector<std::pair<uint8_t, int>>> *cliques, std::vector<uint8_t> *data) {
+	for (std::vector<std::pair<uint8_t, int>> v: *cliques) {
+		for (std::pair<uint8_t, int> p: v) {
+			data->at(p.second) = p.first;
+		}
+	}      		       
+}
 
 int main(int argc, const char** argv) {
 	//store command line args
@@ -30,5 +39,15 @@ int main(int argc, const char** argv) {
 	//break data up into cliques according to the LAP algorithm
 	LAP(&cliques, &data, WIDTH, HEIGHT);
 
-	
+	//perform ICM on the cliques	
+	std::vector<std::vector<std::pair<uint8_t, int>>> cliques_before_ICM = cliques;	
+	ICM(&cliques);
+	if (cliques_before_ICM == cliques) {
+		std::cout << "They are the same, yo." << std::endl;
+	}
+
+	//rebuild the image with the new, denoised pixel values produced by ICM
+	reconstruct_image(&cliques, &data);
+
+	write_data_vector_to_file("data/output/PMRF-D_output.dat", &data, WIDTH, HEIGHT);
 }
