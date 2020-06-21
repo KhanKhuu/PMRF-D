@@ -10,6 +10,6 @@
 
  @param data stores the input image's data
 */
-void removeDuplicates(std::vector< std::pair< uint8_t, int > > *data);
+void removeDuplicates(std::vector< std::pair< uint8_t, size_t > > *data);
 
 #endif //REMOVE_DUPLICATES_HPP

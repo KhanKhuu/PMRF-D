@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		217FDFCD249D735400C68C12 /* Node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 217FDFCB249D735400C68C12 /* Node.cpp */; };
+		217FDFCF249D95D100C68C12 /* AuxMRF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 217FDFCE249D95D100C68C12 /* AuxMRF.cpp */; };
 		21FBF4BE2497477900DD14B4 /* PMRF-D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 21FBF4BD2497477900DD14B4 /* PMRF-D.cpp */; };
 		21FBF4C2249747AB00DD14B4 /* ICM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 21FBF4C1249747AB00DD14B4 /* ICM.cpp */; };
 		21FBF4C82497492400DD14B4 /* LAP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 21FBF4C52497492400DD14B4 /* LAP.cpp */; };
@@ -27,6 +29,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		217FDFC9249D69C300C68C12 /* AuxMRF.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = AuxMRF.hpp; sourceTree = "<group>"; };
+		217FDFCB249D735400C68C12 /* Node.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Node.cpp; sourceTree = "<group>"; };
+		217FDFCC249D735400C68C12 /* Node.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Node.hpp; sourceTree = "<group>"; };
+		217FDFCE249D95D100C68C12 /* AuxMRF.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = AuxMRF.cpp; sourceTree = "<group>"; };
 		21DE07C8249AE68500E40823 /* field_mouse_grey.dat */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = field_mouse_grey.dat; sourceTree = "<group>"; };
 		21FBF4B3249746B300DD14B4 /* PMRF-D */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "PMRF-D"; sourceTree = BUILT_PRODUCTS_DIR; };
 		21FBF4BD2497477900DD14B4 /* PMRF-D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "PMRF-D.cpp"; sourceTree = "<group>"; };
@@ -112,6 +118,10 @@
 				21FBF4C42497492400DD14B4 /* io.hpp */,
 				21FBF4C52497492400DD14B4 /* LAP.cpp */,
 				21FBF4C62497492400DD14B4 /* LAP.hpp */,
+				217FDFCE249D95D100C68C12 /* AuxMRF.cpp */,
+				217FDFC9249D69C300C68C12 /* AuxMRF.hpp */,
+				217FDFCB249D735400C68C12 /* Node.cpp */,
+				217FDFCC249D735400C68C12 /* Node.hpp */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -173,9 +183,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				217FDFCF249D95D100C68C12 /* AuxMRF.cpp in Sources */,
 				21FBF4C82497492400DD14B4 /* LAP.cpp in Sources */,
 				21FBF4BE2497477900DD14B4 /* PMRF-D.cpp in Sources */,
 				21FBF4CC2497497300DD14B4 /* remove_duplicates.cpp in Sources */,
+				217FDFCD249D735400C68C12 /* Node.cpp in Sources */,
 				21FBF4C2249747AB00DD14B4 /* ICM.cpp in Sources */,
 				21FBF4C92497492400DD14B4 /* io.cpp in Sources */,
 			);

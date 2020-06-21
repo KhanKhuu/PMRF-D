@@ -1,6 +1,8 @@
 #ifndef ICM_HPP
 #define ICM_HPP
 
+#include "AuxMRF.hpp"
+
 /**
  Calculates the square of the difference between a given pixel intensity value and a
  prospective new value for that pixel. The sum of these quadratic terms for a given pixel
@@ -12,10 +14,10 @@
 int quad(int p_val, int x_val);
 
 /**
-  Performs Iterative Conditional Modes denoising on the given vector of cliques.
+  Performs Iterative Conditional Modes denoising on the given vector of auxiliary MRFs.
 
-  @param cliques the vector of cliques or partitions of the graph (see LAP implementation)
+  @param auxMRFs graph partitions (use LAP for partitioning)
 */
-void ICM(std::vector< std::vector< std::pair< uint8_t, int > > > *cliques); 
+void ICM(std::vector<AuxMRF> *auxMRFs);
 
 #endif //ICM_HPP

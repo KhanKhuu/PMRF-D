@@ -13,7 +13,7 @@
  
   @param data vector<uint8_t> that stores the binary image data
  */
-void removeDuplicates(std::vector< std::pair< uint8_t, int > > *data) {
+void removeDuplicates(std::vector< std::pair< uint8_t, size_t > > *data) {
 	auto end = data->end();
 
 	for (auto it = data->begin(); it != end; ++it) {

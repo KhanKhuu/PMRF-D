@@ -4,15 +4,16 @@
 #include <utility>
 #include <vector>
 #include "../ICM/ICM.hpp"
+#include "../Utilities/AuxMRF.hpp"
 #include "../Utilities/io.hpp"
 #include "../Utilities/LAP.hpp"
 
-void reconstruct_image(std::vector< std::vector< std::pair< uint8_t, int > > > *cliques, std::vector<uint8_t> *data) {
-	for (std::vector< std::pair< uint8_t, int > > v: *cliques) {
-		for (std::pair<uint8_t, int> p: v) {
-			data->at(p.second) = p.first;
-		}
-	}      		       
+void reconstruct_image(std::vector<AuxMRF> auxMRFs, std::vector<uint8_t> *data) {
+    for (auto auxMRF: auxMRFs) {
+        for (auto baseNode: auxMRF.getBaseNodes()) {
+            data->at(baseNode.position) = baseNode.value;
+        }
+    }
 }
 
 int main(int argc, const char** argv) {
@@ -30,12 +31,10 @@ int main(int argc, const char** argv) {
     
 	// the data vector that will hold the binary image data
 	std::vector<uint8_t> data;
-    
-	// the vector in which to store auxiliary MRFs resulting from the LAP
+        
+    // the vector in which to store auxiliary MRFs resulting from the LAP
     // algorithm.
-    // Note: this vector stores pairs of the values of pixels (pair->first) with
-    // their postions (pair->second)
-	std::vector< std::vector< std::pair< uint8_t, int > > > auxMRFs;
+    std::vector<AuxMRF> auxMRFs;
 
     // user feedback
 	std::cout << "using file: " << file_name << " (" << WIDTH << " x " << HEIGHT << ")" << std::endl;
@@ -48,13 +47,12 @@ int main(int argc, const char** argv) {
     
 	//break data up into cliques according to the LAP algorithm
 	LAP(&auxMRFs, &data, WIDTH, HEIGHT);
+    
+    // TODO: divide the cliques out for parallel optimization
 
 	//perform ICM on the cliques	
-	std::vector< std::vector< std::pair< uint8_t, int > > > auxMRFs_before_ICM = auxMRFs;
+	std::vector<AuxMRF> auxMRFs_before_ICM = auxMRFs;
 	ICM(&auxMRFs);
-	if (auxMRFs_before_ICM == auxMRFs) {
-		std::cout << "(DEBUG): No change after running ICM." << std::endl;
-	}
 
 	//rebuild the image with the new, denoised pixel values produced by ICM
 	reconstruct_image(&auxMRFs, &data);

@@ -6,97 +6,170 @@
 #include <iostream> //for debugging
 #include <utility>
 #include <vector>
+#include "AuxMRF.hpp"
 #include "LAP.hpp"
 #include "remove_duplicates.hpp"
 
-/**
-  Adds the first neighborhood of the given element in the data vector to the cliques vector.
- 
-  @param data binary image data in its entirety
-  @param clique a clique of image graph elements grouped together according to LAP
-  @param WIDTH width of the input image
-  @param HEIGHT height of the input image
-  @param index index of the current image pixel whose first neighborhood we are getting
- */
-void getFirstNeighborhood (const std::vector<uint8_t> *data,
-			     std::vector< std::pair< uint8_t, int > > *clique,
-			     const int WIDTH,
-			     const int HEIGHT,
-			     const int index) {
-	//store the current elements left neighbor (if it exists) in clique
-	if (index % WIDTH) { //i % WIDTH is 0 on the left edges			
-		clique->push_back (std::make_pair(data->at(index - 1), index - 1));
-	}
-
-	//store the current element's top neighbor (if it exists) in clique
-	if (index >= WIDTH) { //top neighbor exists for every element after those in the first row
-		clique->push_back (std::make_pair(data->at(index - WIDTH), index - WIDTH));
-	}
-	
-	//store the current element's right neighbor (if it exists) in clique
-	if ( (index % (WIDTH - 1) && index < (WIDTH * HEIGHT) - 1) || index == 0) { //i % (WIDTH - 1) is 0 for on the right edges
-		clique->push_back(std::make_pair(data->at(index + 1), index + 1));
-	}
-
-	//store the current element's bottom neighbor (if it exists) in clique
-	if (index < (WIDTH * (HEIGHT - 1))) { //bottom neighbor exists for every element before those in the last row
-		clique->push_back(std::make_pair(data->at(index + WIDTH), index + WIDTH));
-	}
+bool isEven(const int num) {
+    return num % 2 == 0;
 }
 
 /**
-  Partitions the image graph into a group of cliques. Cliques are created according to the Linear and
-  Parallel (LAP) algorithm developed by Mizrahi, Denil, and de Freitas.
+  Stores a set of maximal cliques representing every node in the graph in auxMRFs. These will
+  serve as the base elements from which we obtain the auxiliary MRFs
  
-  @param cliques cliques of the graph stored as pairs of values with their positions in the original data vector
-  @param data the input image's binary data stored one-dimensionally
+  @param auxMRFs graph partitions container
+  @param data the image data
   @param WIDTH width of the input image
   @param HEIGHT height of the input image
  */
-void LAP (std::vector< std::vector< std::pair< uint8_t, int > > > *cliques, 
-		      const std::vector<uint8_t> *data, 
-		      const int WIDTH, 
-		      const int HEIGHT) {
-	// temp clique vector to store individual cliques as they are being generated
-	// each clique is saved to the set of all cliques once generated
-	std::vector< std::pair< uint8_t, int > > clique;
+void getMaximalCliques(std::vector<AuxMRF> *auxMRFs,
+                       const std::vector<uint8_t> *data,
+                       const int WIDTH,
+                       const int HEIGHT) {
+        
+        // Break up the graph in such a way that we eliminate overlap.
+        // If either HEIGHT or WIDTH is even, there will be no overlap.
+        // If not, then the last node will have to take in some neighbor
+        // that is also in another clique in order to get a maximal clique.
+        // We will track this by marking its position as -1 to maintain
+        // determinism.
+        if (isEven(HEIGHT)) {
+            // get vertically adjacent pairs of pixels as maximal cliques
+            for (size_t i = 0; i < HEIGHT; i+=2) {
+                for (size_t j = 0; j < WIDTH; ++j) {
+                    // top node in the maximal clique
+                    auto top = Node(data->at(i * WIDTH + j), i * WIDTH + j);
+                    // bottom node in the maximal clique
+                    auto bottom = Node(data->at((i + 1) * WIDTH + j), i * WIDTH + j + 1);
+                    // temp vector to store the maximal clique
+                    AuxMRF maximalClique;
+                    // push the nodes into the maximal clique
+                    maximalClique.addBaseNode(top);
+                    maximalClique.addBaseNode(bottom);
+                    // push the maximal clique into the collection
+                    auxMRFs->push_back(maximalClique);
+                }
+            }
+        } else if (isEven(WIDTH)) {
+            // get horizontally adjacent pairs of nodes as maximal cliques
+            for (size_t i = 0; i < HEIGHT; i++) {
+                for (size_t j = 0; j < WIDTH; j+=2) {
+                    // left node in the maximal clique
+                    auto left = Node(data->at(i * WIDTH + j), i * WIDTH + j);
+                    // bottom node in the maximal clique
+                    auto right = Node(data->at(i * WIDTH + j + 1), i * WIDTH + j + 1);
+                    // temp vector to store the maximal clique
+                    AuxMRF maximalClique;
+                    // push the nodes into the maximal clique
+                    maximalClique.addBaseNode(left);
+                    maximalClique.addBaseNode(right);
+                    // push the maximal clique into the collection
+                    auxMRFs->push_back(maximalClique);
+                }
+            }
+        } else {
+            // neither width nor height even, so we will get vertically adjacent
+            // nodes as maximal cliques and handle the overlap in the last row
+            
+            // get vertically adjacent pairs of pixels as maximal cliques
+            // up until the second to last row
+            for (size_t i = 0; i < HEIGHT; i+=2) {
+                for (size_t j = 0; j < WIDTH; ++j) {
+                    // top node in the maximal clique
+                    auto top = Node(data->at(i * WIDTH + j), i * WIDTH + j);
+                    // bottom node in the maximal clique
+                    auto bottom = Node(data->at((i + 1) * WIDTH + j), i * WIDTH + j + 1);
+                    // temp vector to store the maximal clique
+                    AuxMRF maximalClique;
+                    // push the nodes into the maximal clique
+                    maximalClique.addBaseNode(top);
+                    maximalClique.addBaseNode(bottom);
+                    // push the maximal clique into the collection
+                    auxMRFs->push_back(maximalClique);
+                }
+            }
+            // handle the last row by including the second to last row again
+            for (size_t i = 0; i < WIDTH; ++i) {
+                auto top = Node(data->at((HEIGHT - 2) * WIDTH + i), (HEIGHT - 2) * WIDTH + i);
+                auto bottom = Node(data->at((HEIGHT - 1) * WIDTH + i), (HEIGHT - 1) * WIDTH + i);
+                // temp vector to store the maximal clique
+                AuxMRF maximalClique;
+                // push the nodes into the maximal clique
+                maximalClique.addBaseNode(top);
+                maximalClique.addBaseNode(bottom);
+                // push the maximal clique into the collection
+                auxMRFs->push_back(maximalClique);
+            }
+        }
+}
 
-	for (int i = 0; i < HEIGHT * WIDTH; i++) {
+/**
+  Completes the Linear and Parallel algorithm by adding any node with a neighbor in the maximal
+  clique stored in auxMRFs to the maximal clique.
+ 
+  @param auxMRFs graph partitons container
+  @param data the image data
+  @param WIDTH width of the input image
+  @param HEIGHT height of the input image
+ */
+void augmentCliques(std::vector<AuxMRF> *auxMRFs,
+                    const std::vector<uint8_t> *data,
+                    const int WIDTH,
+                    const int HEIGHT) {
+    
+    for (auto &auxMRF: *auxMRFs) {
+        for (auto baseNode: auxMRF.getBaseNodes()) {
+            
+            // add the base node's left neighbor to the augmented clique
+            // i % WIDTH is 0 on the left edges
+            if (baseNode.position % WIDTH != 0) {
+                auto augmentingNode = Node(data->at(baseNode.position - 1), baseNode.position - 1);
+                auxMRF.addAugmentingNode(augmentingNode);
+            }
+            
+            // add the base node's top neighbor to the augmented clique
+            if (baseNode.position >= WIDTH) { //top neighbor exists for every element after those in the first row
+                auto augmentingNode = Node(data->at(baseNode.position - WIDTH), baseNode.position - WIDTH);
+                auxMRF.addAugmentingNode(augmentingNode);
+            }
 
-		// store the current element in cliqe
-		clique.push_back(std::make_pair(data->at(i), i));		
-		
-		// store the first neighborhood of the current element in clique
-		getFirstNeighborhood (data, &clique, WIDTH, HEIGHT, i);
+            // add the base node's right neighbor to the augmented clique
+            // i % (WIDTH - 1) is 0 for nodes on the right edges
+            if ( ( ( (baseNode.position + 1) % WIDTH ) != 0) || ( baseNode.position == 0 ) ) {
+                auto augmentingNode = Node(data->at(baseNode.position + 1), baseNode.position + 1);
+                auxMRF.addAugmentingNode(augmentingNode);
+            }
+            
+            // Add the base node's bottom neighbor to the augmented clique.
+            // Bottom neighbor exists for every element before those in the
+            // last row.
+            if (baseNode.position < (WIDTH * (HEIGHT - 1))) {
+                auto augmentingNode = Node(data->at(baseNode.position + WIDTH), baseNode.position + WIDTH);
+                auxMRF.addAugmentingNode(augmentingNode);
+            }
+        }
+    }
+}
 
-		// store the first neighborhood of the current element's left neighbor (if it exists) in clique
-		if (i % WIDTH) { //i % WIDTH is 0 on the left edges
-			getFirstNeighborhood (data, &clique, WIDTH, HEIGHT, i - 1);
-		}
-
-		// store the first neighborhood of the current element's top neighbor (if it exists) in clique
-		if (i >= WIDTH) { // top neighbor exists for every element after those in the first row
-			getFirstNeighborhood (data, &clique, WIDTH, HEIGHT, i - WIDTH);
-		}
-
-		// store the first neighborhood of the current element's right neighbor (if it exists) in clique
-		if (i % (WIDTH - 1) || i == 0) { //i % (WIDTH - 1) is 0 for on the right edges
-			getFirstNeighborhood (data, &clique, WIDTH, HEIGHT, i + 1);
-		}
-
-		// store the first neighborhood of the current element's bottom neighbor (if it exists) in clique
-		if (i < WIDTH * (HEIGHT - 1)) { // bottom neighbor exists for every element before those in the last row
-			getFirstNeighborhood (data, &clique, WIDTH, HEIGHT, i + WIDTH);
-		}
-		
-		// remove all of the duplicate elements in the clique
-		removeDuplicates(&clique);	
-	
-		// store the current clique in the set of all cliques
-		cliques->push_back(clique);
-	
-		// now reset clique to prepare it to store the next clique
-		clique.erase(clique.begin(), clique.end());
-	}
+/**
+  Partitions the image graph into a group of auxiliary MRFs. Auxiliary MRFs are created according to the
+  Linear and Parallel (LAP) algorithm developed by Mizrahi, Denil, and de Freitas.
+ 
+  @param auxMRFs graph partitons container
+  @param data the image data
+  @param WIDTH width of the input image
+  @param HEIGHT height of the input image
+ */
+void LAP (std::vector<AuxMRF> *auxMRFs,
+          const std::vector<uint8_t> *data,
+          const int WIDTH,
+          const int HEIGHT) {
+        
+    // get the maximal cliques to create the auxiliary MRFs from
+    getMaximalCliques(auxMRFs, data, WIDTH, HEIGHT);
+    
+    // augment the cliques to get the distributable auxiliary MRFs
+    augmentCliques(auxMRFs, data, WIDTH, HEIGHT);
 }
 
