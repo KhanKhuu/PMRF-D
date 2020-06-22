@@ -42,20 +42,19 @@ int main(int argc, const char** argv) {
 	// read the data from the file into vector<uint8_t> data
 	readImageFileToVector(file_name, &data);
 
-	//write the data back to the file for testing purposes
+	// write the data back to the file for testing purposes
 	writeDataVectorToFile("Output/test_output.dat", &data, WIDTH, HEIGHT);
     
-	//break data up into cliques according to the LAP algorithm
+	// break data up into cliques according to the LAP algorithm
 	LAP(&auxMRFs, &data, WIDTH, HEIGHT);
     
     // TODO: divide the cliques out for parallel optimization
 
-	//perform ICM on the cliques	
-	std::vector<AuxMRF> auxMRFs_before_ICM = auxMRFs;
+	// perform ICM on the cliques
 	ICM(&auxMRFs);
 
-	//rebuild the image with the new, denoised pixel values produced by ICM
-	reconstruct_image(&auxMRFs, &data);
+	// rebuild the image with the new, denoised pixel values produced by ICM
+	reconstruct_image(auxMRFs, &data);
 
 	writeDataVectorToFile("Output/PMRF-D_output.dat", &data, WIDTH, HEIGHT);
 }

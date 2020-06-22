@@ -30,8 +30,8 @@ void ICM(std::vector<AuxMRF> *auxMRFs) {
                     // of a pixel at a given position
 	int energy;     // energy at a given pixel in the image
     uint8_t bestX;      // value for a pixel that results in the least energy
-    const int LAMBDA = 0.5;   // weighting for the pairwise (smoothness) term
-    const int PSI_MAX = 1; // truncates the pairwise term (psi_max = 1 -> Potts)
+    const double LAMBDA = 0.5;   // weighting for the pairwise (smoothness) term
+    const int PSI_MAX = 5000; // truncates the pairwise term (psi_max = 1 -> Potts)
     
     for (auto &auxMRF: *auxMRFs) {
         for (auto &baseNode: auxMRF.getBaseNodes()) {

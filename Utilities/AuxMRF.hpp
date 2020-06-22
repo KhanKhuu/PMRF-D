@@ -23,10 +23,15 @@ public:
     bool addAugmentingNode(Node node);
 
     // get vector of base nodes
-    std::vector<Node> getBaseNodes();
+    std::vector<Node>& getBaseNodes();
 
     // get vector of augmentingNodes
-    std::vector<Node> getAugmentingNodes();
+    std::vector<Node>& getAugmentingNodes();
+    
+//    bool operator==(AuxMRF rval) {
+//        return this->baseNodes == rval.getBaseNodes() &&
+//        this->augmentingNodes == rval.getAugmentingNodes();
+//    }
 };
 
 #endif /* AuxMRF_hpp */

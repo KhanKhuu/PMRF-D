@@ -72,13 +72,16 @@ void getMaximalCliques(std::vector<AuxMRF> *auxMRFs,
             // neither width nor height even, so we will get vertically adjacent
             // nodes as maximal cliques and handle the overlap in the last row
             
+            std::cout << "here" << std::endl;
             // get vertically adjacent pairs of pixels as maximal cliques
             // up until the second to last row
-            for (size_t i = 0; i < HEIGHT; i+=2) {
+            for (size_t i = 0; i < HEIGHT - 1; i+=2) {
                 for (size_t j = 0; j < WIDTH; ++j) {
                     // top node in the maximal clique
+                    std::cout << "top with i = " << i << ", j = " << j << std::endl;
                     auto top = Node(data->at(i * WIDTH + j), i * WIDTH + j);
                     // bottom node in the maximal clique
+                    std::cout << "bottom with i = " << i << ", j = " << j << std::endl;
                     auto bottom = Node(data->at((i + 1) * WIDTH + j), i * WIDTH + j + 1);
                     // temp vector to store the maximal clique
                     AuxMRF maximalClique;
@@ -89,6 +92,7 @@ void getMaximalCliques(std::vector<AuxMRF> *auxMRFs,
                     auxMRFs->push_back(maximalClique);
                 }
             }
+            std::cout << "done" << std::endl;
             // handle the last row by including the second to last row again
             for (size_t i = 0; i < WIDTH; ++i) {
                 auto top = Node(data->at((HEIGHT - 2) * WIDTH + i), (HEIGHT - 2) * WIDTH + i);

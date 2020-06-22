@@ -11,6 +11,7 @@ Node::Node(size_t position) {
     this->value = 0;
 }
 
-//bool Node::operator==(const Node n) {
-//    return n.position == this->position;
+//bool Node::operator==(Node rval) {
+//    return this->position == rval.position &&
+//    this->value == rval.value;
 //}

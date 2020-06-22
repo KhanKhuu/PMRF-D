@@ -1,4 +1,5 @@
-#include "AuxMRF.hpp"
+#include "./AuxMRF.hpp"
+#include <unordered_set>
 
 // Adds a node to this auxiliary MRF's baseNodes set.
 bool AuxMRF::addBaseNode(Node node) {
@@ -6,6 +7,7 @@ bool AuxMRF::addBaseNode(Node node) {
     // add the node if it is not already in the auxiliary MRF
     if (positions.find(node.position) == positions.end()) {
         baseNodes.push_back(node);
+        positions.emplace(node.position);
         return true;
     }
 
@@ -18,6 +20,7 @@ bool AuxMRF::addAugmentingNode(Node node) {
     // add the node if it is not already in the auxiliary MRF
     if (positions.find(node.position) == positions.end()) {
         augmentingNodes.push_back(node);
+        positions.emplace(node.position);
         return true;
     }
     
@@ -26,11 +29,11 @@ bool AuxMRF::addAugmentingNode(Node node) {
 
 
 // get vector of base nodes
-std::vector<Node> AuxMRF::getBaseNodes() {
+std::vector<Node>& AuxMRF::getBaseNodes() {
     return baseNodes;
 }
 
 // get vector of augmentingNodes
-std::vector<Node> AuxMRF::getAugmentingNodes() {
+std::vector<Node>& AuxMRF::getAugmentingNodes() {
     return augmentingNodes;
 }
