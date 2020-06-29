@@ -6,17 +6,21 @@
 #define LAP_HPP
 
 /**
- Partitions the image graph into a group of cliques. Cliques are created according to the Linear and
- Parallel (LAP) algorithm developed by Mizrahi, Denil, and de Freitas.
+ Partitions the image graph into a group of auxiliary MRFs. Auxiliary MRFs are created according to the
+ Linear and Parallel (LAP) algorithm developed by Mizrahi, Denil, and de Freitas.
 
- @param auxMRFs cliques of the graph stored as pairs of values with their positions in the original data vector
- @param data the input image's binary data stored one-dimensionally
+ @param auxMRFs graph partitions container
+ @param data the image data
  @param WIDTH width of the input image
  @param HEIGHT height of the input image
+ @param THREAD_ID id of the current thread
+ @param NUM_THREADS total number of threads running
 */
 void LAP (std::vector<AuxMRF> *auxMRFs,
-		      const std::vector<uint8_t> *data, 
-		      const int WIDTH, 
-		      const int HEIGHT); 
+          const std::vector<uint8_t> *data,
+          const size_t WIDTH,
+          const size_t HEIGHT,
+          const size_t THREAD_ID,
+          const size_t NUM_THREADS);
 
 #endif //LAP_HPP

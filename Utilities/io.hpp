@@ -20,6 +20,6 @@ void readImageFileToVector(std::string fileName, std::vector<uint8_t> *data);
  @param WIDTH width in bytes of the output image
  @param HEIGHT height in bytes of the output image
 */
-void writeDataVectorToFile( std::string fileName, std::vector<uint8_t> *data, const int WIDTH, const int HEIGHT );
+void writeDataVectorToFile( std::string fileName, std::vector<uint8_t> *data, const size_t WIDTH, const size_t HEIGHT );
 
 #endif

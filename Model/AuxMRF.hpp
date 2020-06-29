@@ -16,6 +16,8 @@ private:
     std::unordered_set<size_t> positions;
 
 public:
+    bool isOverlappingPixel = false;
+    
     // Adds a node to this auxiliary MRF's baseNodes set.
     bool addBaseNode(Node node);
     

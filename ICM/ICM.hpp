@@ -1,7 +1,7 @@
 #ifndef ICM_HPP
 #define ICM_HPP
 
-#include "../Utilities/AuxMRF.hpp"
+#include "../Model/AuxMRF.hpp"
 
 /**
  Calculates the square of the difference between a given pixel intensity value and a
