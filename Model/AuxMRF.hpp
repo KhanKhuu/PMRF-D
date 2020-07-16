@@ -14,6 +14,7 @@ private:
     std::vector<Node> augmentingNodes;
     // stores the positions of added nodes to prevent duplicates
     std::unordered_set<size_t> positions;
+    size_t channel = 0;
 
 public:
     bool isOverlappingPixel = false;
@@ -30,6 +31,10 @@ public:
     // get vector of augmentingNodes
     std::vector<Node>& getAugmentingNodes();
     
+    bool set_channel(size_t channel);
+    
+    size_t getChannel() { return this->channel; }
+        
 //    bool operator==(AuxMRF rval) {
 //        return this->baseNodes == rval.getBaseNodes() &&
 //        this->augmentingNodes == rval.getAugmentingNodes();

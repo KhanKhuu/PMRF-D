@@ -6,20 +6,21 @@
 #define IO_H
 
 /**
- Reads the binary image data into the vector one byte at a time.
-
- @param fileName the path/name of the binary file containing the image data
+ Writes the binary image data into the data vector. data is a 3-channel vector of vectors of the image data, with channels
+ being the colors BGR in that order.
+ 
+ @param img the OpenCV Mat object containing the image data
  @param data pointer to the vector<uint8_t> that stores the image data
 */
-void readImageFileToVector(std::string fileName, std::vector<uint8_t> *data);
-/**
- Copies the denoised image data from the given vector to the given file path.
+void transferMatDataToVector(cv::Mat *img, std::vector< std::vector<uint8_t> > *data);
 
+/**
+ Writes the denoised image data from the given vector to the given file path.
+
+ @param img the OpenCV Mat object containing the image data
  @param fileName path to the output file in which to store the denoised image
  @param data pointer to the data vector that holds the denoised image data
- @param WIDTH width in bytes of the output image
- @param HEIGHT height in bytes of the output image
 */
-void writeDataVectorToFile( std::string fileName, std::vector<uint8_t> *data, const size_t WIDTH, const size_t HEIGHT );
+void writeImageToFile( cv::Mat *img, std::string fileName, std::vector< std::vector<uint8_t> > *data );
 
 #endif

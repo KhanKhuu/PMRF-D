@@ -28,13 +28,14 @@ bool isEven(const size_t num) {
   @param NUM_THREADS total number of threads running
  */
 void getMaximalCliques(std::vector<AuxMRF> *auxMRFs,
-                       const std::vector<uint8_t> *data,
+                       const std::vector< std::vector<uint8_t> > *data,
                        const size_t WIDTH,
                        const size_t HEIGHT,
+                       const size_t CHANNELS,
                        const size_t THREAD_ID,
                        const size_t NUM_THREADS) {
-    
     if (isEven(HEIGHT)) {
+        std::cout << "Even Height Case" << std:: endl;
         size_t CLIQUES_PER_THREAD = WIDTH * HEIGHT / 2 / NUM_THREADS;
         size_t START_ROW = (THREAD_ID * CLIQUES_PER_THREAD / WIDTH) * 2;
         size_t START_COL = (THREAD_ID * CLIQUES_PER_THREAD) % WIDTH;
@@ -46,74 +47,81 @@ void getMaximalCliques(std::vector<AuxMRF> *auxMRFs,
             END_COL = WIDTH - 1;
         }
         
-        if (START_ROW != END_ROW) {
-            
-            size_t i = START_ROW;
-            
-            // get maximal cliques in the first row belonging to the thread
-            for (size_t j = START_COL; j < WIDTH; ++j) {
-                // top node in the maximal clique
-                auto top = Node(data->at(i * WIDTH + j), i * WIDTH + j);
-                // bottom node in the maximal clique
-                auto bottom = Node(data->at((i + 1) * WIDTH + j), (i + 1) * WIDTH + j);
-                // temp vector to store the maximal clique
-                AuxMRF maximalClique;
-                // push the nodes into the maximal clique
-                maximalClique.addBaseNode(top);
-                maximalClique.addBaseNode(bottom);
-                // push the maximal clique into the collection
-                auxMRFs->push_back(maximalClique);
-            }
-            // go to the next row
-            i+=2;
-            // get maximal cliques in the (guaranteed) complete rows
-            // between the first and last rows belonging to the thread
-            for ( ; i < END_ROW; i+=2) {
-                for (size_t j = 0; j < WIDTH; ++j) {
+        for (size_t channel = 0; channel < CHANNELS; ++channel) {
+            if (START_ROW != END_ROW) {
+                
+                size_t i = START_ROW;
+                
+                // get maximal cliques in the first row belonging to the thread
+                for (size_t j = START_COL; j < WIDTH; ++j) {
                     // top node in the maximal clique
-                   auto top = Node(data->at(i * WIDTH + j), i * WIDTH + j);
-                   // bottom node in the maximal clique
-                   auto bottom = Node(data->at((i + 1) * WIDTH + j), (i + 1) * WIDTH + j);
-                   // temp vector to store the maximal clique
-                   AuxMRF maximalClique;
-                   // push the nodes into the maximal clique
-                   maximalClique.addBaseNode(top);
-                   maximalClique.addBaseNode(bottom);
-                   // push the maximal clique into the collection
-                   auxMRFs->push_back(maximalClique);
+                    auto top = Node(data->at(channel).at(i * WIDTH + j), i * WIDTH + j);
+                    // bottom node in the maximal clique
+                    auto bottom = Node(data->at(channel).at((i + 1) * WIDTH + j), (i + 1) * WIDTH + j);
+                    // temp vector to store the maximal clique
+                    AuxMRF maximalClique;
+                    // push the nodes into the maximal clique
+                    maximalClique.addBaseNode(top);
+                    maximalClique.addBaseNode(bottom);
+                    maximalClique.set_channel(channel);
+                    // push the maximal clique into the collection
+                    auxMRFs->push_back(maximalClique);
+                }
+                // go to the next row
+                i+=2;
+                // get maximal cliques in the (guaranteed) complete rows
+                // between the first and last rows belonging to the thread
+                for ( ; i < END_ROW; i+=2) {
+                    for (size_t j = 0; j < WIDTH; ++j) {
+                        // top node in the maximal clique
+                        auto top = Node(data->at(channel).at(i * WIDTH + j), i * WIDTH + j);
+                       // bottom node in the maximal clique
+                        auto bottom = Node(data->at(channel).at((i + 1) * WIDTH + j), (i + 1) * WIDTH + j);
+                       // temp vector to store the maximal clique
+                       AuxMRF maximalClique;
+                       // push the nodes into the maximal clique
+                       maximalClique.addBaseNode(top);
+                       maximalClique.addBaseNode(bottom);
+                       maximalClique.set_channel(channel);
+                       // push the maximal clique into the collection
+                       auxMRFs->push_back(maximalClique);
+                    }
+                }
+                // now i == END_ROW
+                for (size_t j = 0; j <= END_COL; ++j) {
+                    // top node in the maximal clique
+                    auto top = Node(data->at(channel).at(i * WIDTH + j), i * WIDTH + j);
+                    // bottom node in the maximal clique
+                    auto bottom = Node(data->at(channel).at((i + 1) * WIDTH + j), (i + 1) * WIDTH + j);
+                    // temp vector to store the maximal clique
+                    AuxMRF maximalClique;
+                    // push the nodes into the maximal clique
+                    maximalClique.addBaseNode(top);
+                    maximalClique.addBaseNode(bottom);
+                    maximalClique.set_channel(channel);
+                    // push the maximal clique into the collection
+                    auxMRFs->push_back(maximalClique);
+                }
+            } else {
+                size_t i = START_ROW; // (which is the same as END_ROW)
+                for (size_t j = START_COL; j <= END_COL; ++j) {
+                    // top node in the maximal clique
+                    auto top = Node(data->at(channel).at(i * WIDTH + j), i * WIDTH + j);
+                    // bottom node in the maximal clique
+                    auto bottom = Node(data->at(channel).at((i + 1) * WIDTH + j), i * WIDTH + j + 1);
+                    // temp vector to store the maximal clique
+                    AuxMRF maximalClique;
+                    // push the nodes into the maximal clique
+                    maximalClique.addBaseNode(top);
+                    maximalClique.addBaseNode(bottom);
+                    maximalClique.set_channel(channel);
+                    // push the maximal clique into the collection
+                    auxMRFs->push_back(maximalClique);
                 }
             }
-            // now i == END_ROW
-            for (size_t j = 0; j <= END_COL; ++j) {
-                // top node in the maximal clique
-                auto top = Node(data->at(i * WIDTH + j), i * WIDTH + j);
-                // bottom node in the maximal clique
-                auto bottom = Node(data->at((i + 1) * WIDTH + j), (i + 1) * WIDTH + j);
-                // temp vector to store the maximal clique
-                AuxMRF maximalClique;
-                // push the nodes into the maximal clique
-                maximalClique.addBaseNode(top);
-                maximalClique.addBaseNode(bottom);
-                // push the maximal clique into the collection
-                auxMRFs->push_back(maximalClique);
-            }
-        } else {
-            size_t i = START_ROW; // (which is the same as END_ROW)
-            for (size_t j = START_COL; j <= END_COL; ++j) {
-                // top node in the maximal clique
-                auto top = Node(data->at(i * WIDTH + j), i * WIDTH + j);
-                // bottom node in the maximal clique
-                auto bottom = Node(data->at((i + 1) * WIDTH + j), i * WIDTH + j + 1);
-                // temp vector to store the maximal clique
-                AuxMRF maximalClique;
-                // push the nodes into the maximal clique
-                maximalClique.addBaseNode(top);
-                maximalClique.addBaseNode(bottom);
-                // push the maximal clique into the collection
-                auxMRFs->push_back(maximalClique);
-            }
-        }
+        } // end for( channel in NUM_CHANNELS )
     } else if (isEven(WIDTH)) {
+        std::cout << "Even Width Case" << std:: endl;
         size_t CLIQUES_PER_THREAD = WIDTH * HEIGHT / 2 / NUM_THREADS;
         size_t START_ROW = (THREAD_ID * CLIQUES_PER_THREAD * 2 / WIDTH);
         size_t START_COL = (THREAD_ID * CLIQUES_PER_THREAD * 2) % WIDTH;
@@ -125,72 +133,80 @@ void getMaximalCliques(std::vector<AuxMRF> *auxMRFs,
             END_COL = WIDTH - 1;
         }
         
-        if (START_ROW != END_ROW) {
-            size_t i = START_ROW;
-            // get maximal cliques in the first row belonging to the thread
-            for (size_t j = START_COL; j < WIDTH; j+=2) {
-                // left node in the maximal clique
-                auto left = Node(data->at(i * WIDTH + j), i * WIDTH + j);
-                // bottom node in the maximal clique
-                auto right = Node(data->at(i * WIDTH + j + 1), i * WIDTH + j + 1);
-                // temp vector to store the maximal clique
-                AuxMRF maximalClique;
-                // push the nodes into the maximal clique
-                maximalClique.addBaseNode(left);
-                maximalClique.addBaseNode(right);
-                // push the maximal clique into the collection
-                auxMRFs->push_back(maximalClique);
-            }
-            ++i; // go to the next row
-            // get maximal cliques in the (guaranteed) complete
-            // rows between the thread's first and last rows
-            for ( ; i < END_ROW; ++i) {
-                for (size_t j = 0; j < WIDTH; ++j) {
+        for (size_t channel = 0; channel < CHANNELS; ++channel) {
+        
+            if (START_ROW != END_ROW) {
+                size_t i = START_ROW;
+                // get maximal cliques in the first row belonging to the thread
+                for (size_t j = START_COL; j < WIDTH; j+=2) {
                     // left node in the maximal clique
-                    auto left = Node(data->at(i * WIDTH + j), i * WIDTH + j);
+                    auto left = Node(data->at(channel).at(i * WIDTH + j), i * WIDTH + j);
                     // bottom node in the maximal clique
-                    auto right = Node(data->at(i * WIDTH + j + 1), i * WIDTH + j + 1);
+                    auto right = Node(data->at(channel).at(i * WIDTH + j + 1), i * WIDTH + j + 1);
                     // temp vector to store the maximal clique
                     AuxMRF maximalClique;
                     // push the nodes into the maximal clique
                     maximalClique.addBaseNode(left);
                     maximalClique.addBaseNode(right);
+                    maximalClique.set_channel(channel);
+                    // push the maximal clique into the collection
+                    auxMRFs->push_back(maximalClique);
+                }
+                ++i; // go to the next row
+                // get maximal cliques in the (guaranteed) complete
+                // rows between the thread's first and last rows
+                for ( ; i < END_ROW; ++i) {
+                    for (size_t j = 0; j < WIDTH; ++j) {
+                        // left node in the maximal clique
+                        auto left = Node(data->at(channel).at(i * WIDTH + j), i * WIDTH + j);
+                        // bottom node in the maximal clique
+                        auto right = Node(data->at(channel).at(i * WIDTH + j + 1), i * WIDTH + j + 1);
+                        // temp vector to store the maximal clique
+                        AuxMRF maximalClique;
+                        // push the nodes into the maximal clique
+                        maximalClique.addBaseNode(left);
+                        maximalClique.addBaseNode(right);
+                        maximalClique.set_channel(channel);
+                        // push the maximal clique into the collection
+                        auxMRFs->push_back(maximalClique);
+                    }
+                }
+                // now i == END_ROW
+                // get maximal cliques in the last row belonging to the thread
+                for (size_t j = 0; j <= END_COL; j+=2) {
+                    // left node in the maximal clique
+                    auto left = Node(data->at(channel).at(i * WIDTH + j), i * WIDTH + j);
+                    // bottom node in the maximal clique
+                    auto right = Node(data->at(channel).at(i * WIDTH + j + 1), i * WIDTH + j + 1);
+                    // temp vector to store the maximal clique
+                    AuxMRF maximalClique;
+                    // push the nodes into the maximal clique
+                    maximalClique.addBaseNode(left);
+                    maximalClique.addBaseNode(right);
+                    maximalClique.set_channel(channel);
+                    // push the maximal clique into the collection
+                    auxMRFs->push_back(maximalClique);
+                }
+            } else {
+                size_t i = START_ROW; // (which is also equal to END_ROW)
+                for (size_t j = 0; j <= END_COL; j+=2) {
+                    // left node in the maximal clique
+                    auto left = Node(data->at(channel).at(i * WIDTH + j), i * WIDTH + j);
+                    // bottom node in the maximal clique
+                    auto right = Node(data->at(channel).at(i * WIDTH + j + 1), i * WIDTH + j + 1);
+                    // temp vector to store the maximal clique
+                    AuxMRF maximalClique;
+                    // push the nodes into the maximal clique
+                    maximalClique.addBaseNode(left);
+                    maximalClique.addBaseNode(right);
+                    maximalClique.set_channel(channel);
                     // push the maximal clique into the collection
                     auxMRFs->push_back(maximalClique);
                 }
             }
-            // now i == END_ROW
-            // get maximal cliques in the last row belonging to the thread
-            for (size_t j = 0; j <= END_COL; j+=2) {
-                // left node in the maximal clique
-                auto left = Node(data->at(i * WIDTH + j), i * WIDTH + j);
-                // bottom node in the maximal clique
-                auto right = Node(data->at(i * WIDTH + j + 1), i * WIDTH + j + 1);
-                // temp vector to store the maximal clique
-                AuxMRF maximalClique;
-                // push the nodes into the maximal clique
-                maximalClique.addBaseNode(left);
-                maximalClique.addBaseNode(right);
-                // push the maximal clique into the collection
-                auxMRFs->push_back(maximalClique);
-            }
-        } else {
-            size_t i = START_ROW; // (which is also equal to END_ROW)
-            for (size_t j = 0; j <= END_COL; j+=2) {
-                // left node in the maximal clique
-                auto left = Node(data->at(i * WIDTH + j), i * WIDTH + j);
-                // bottom node in the maximal clique
-                auto right = Node(data->at(i * WIDTH + j + 1), i * WIDTH + j + 1);
-                // temp vector to store the maximal clique
-                AuxMRF maximalClique;
-                // push the nodes into the maximal clique
-                maximalClique.addBaseNode(left);
-                maximalClique.addBaseNode(right);
-                // push the maximal clique into the collection
-                auxMRFs->push_back(maximalClique);
-            }
-        }
+        } // end for( channel in NUM_CHANNELS )
     } else {
+        std::cout << "Odd Height Odd Width Case" << std:: endl;
         // neither width nor height even, so we will get vertically adjacent
         // nodes as maximal cliques and handle the overlap in the last row.
         // results in WIDTH * (HEIGHT + 1) / 2 maximal cliques
@@ -205,75 +221,80 @@ void getMaximalCliques(std::vector<AuxMRF> *auxMRFs,
             END_COL = WIDTH - 1;
         }
         
-//        std::cout << "I'm Thread " << THREAD_ID << " and I've got row " << START_ROW << ", column " << START_COL <<  " through row " << END_ROW << ", column " << END_COL << std::endl;
+        for (size_t channel = 0; channel < CHANNELS; ++channel) {
                 
-        if (START_ROW != END_ROW) {
-            size_t i = START_ROW;
-            
-            // get maximal cliques in the first row belonging to the thread
-            for (size_t j = START_COL; j < WIDTH; ++j) {
-                // top node in the maximal clique
-                auto top = Node(data->at(i * WIDTH + j), i * WIDTH + j);
-                // bottom node in the maximal clique
-                auto bottom = Node(data->at((i + 1) * WIDTH + j), (i + 1) * WIDTH + j);
-                // temp vector to store the maximal clique
-                AuxMRF maximalClique;
-                // push the nodes into the maximal clique
-                maximalClique.addBaseNode(top);
-                maximalClique.addBaseNode(bottom);
-                // push the maximal clique into the collection
-                auxMRFs->push_back(maximalClique);
-            }
-            // go to the next row
-            i+=2;
-            // get maximal cliques in the (guaranteed) complete rows
-            // between the first and last rows belonging to the thread
-            for ( ; i < END_ROW; i+=2) {
-                for (size_t j = 0; j < WIDTH; ++j) {
+            if (START_ROW != END_ROW) {
+                size_t i = START_ROW;
+                
+                // get maximal cliques in the first row belonging to the thread
+                for (size_t j = START_COL; j < WIDTH; ++j) {
                     // top node in the maximal clique
-                   auto top = Node(data->at(i * WIDTH + j), i * WIDTH + j);
-                   // bottom node in the maximal clique
-                   auto bottom = Node(data->at((i + 1) * WIDTH + j), (i + 1) * WIDTH + j);
-                   // temp vector to store the maximal clique
-                   AuxMRF maximalClique;
-                   // push the nodes into the maximal clique
-                   maximalClique.addBaseNode(top);
-                   maximalClique.addBaseNode(bottom);
-                   // push the maximal clique into the collection
-                   auxMRFs->push_back(maximalClique);
+                    auto top = Node(data->at(channel).at(i * WIDTH + j), i * WIDTH + j);
+                    // bottom node in the maximal clique
+                    auto bottom = Node(data->at(channel).at((i + 1) * WIDTH + j), (i + 1) * WIDTH + j);
+                    // temp vector to store the maximal clique
+                    AuxMRF maximalClique;
+                    // push the nodes into the maximal clique
+                    maximalClique.addBaseNode(top);
+                    maximalClique.addBaseNode(bottom);
+                    maximalClique.set_channel(channel);
+                    // push the maximal clique into the collection
+                    auxMRFs->push_back(maximalClique);
+                }
+                // go to the next row
+                i+=2;
+                // get maximal cliques in the (guaranteed) complete rows
+                // between the first and last rows belonging to the thread
+                for ( ; i < END_ROW; i+=2) {
+                    for (size_t j = 0; j < WIDTH; ++j) {
+                        // top node in the maximal clique
+                       auto top = Node(data->at(channel).at(i * WIDTH + j), i * WIDTH + j);
+                       // bottom node in the maximal clique
+                       auto bottom = Node(data->at(channel).at((i + 1) * WIDTH + j), (i + 1) * WIDTH + j);
+                       // temp vector to store the maximal clique
+                       AuxMRF maximalClique;
+                       // push the nodes into the maximal clique
+                       maximalClique.addBaseNode(top);
+                       maximalClique.addBaseNode(bottom);
+                       maximalClique.set_channel(channel);
+                       // push the maximal clique into the collection
+                       auxMRFs->push_back(maximalClique);
+                    }
+                }
+                // Now i == END_ROW or i == END_ROW + 1. Make sure i == END_ROW.
+                i = END_ROW;
+                for (size_t j = 0; j <= END_COL; ++j) {
+                    // top node in the maximal clique
+                    auto top = Node(data->at(channel).at(i * WIDTH + j), i * WIDTH + j);
+                    // bottom node in the maximal clique
+                    auto bottom = Node(data->at(channel).at((i + 1) * WIDTH + j), (i + 1) * WIDTH + j);
+                    // temp vector to store the maximal clique
+                    AuxMRF maximalClique;
+                    // push the nodes into the maximal clique
+                    maximalClique.addBaseNode(top);
+                    maximalClique.addBaseNode(bottom);
+                    maximalClique.set_channel(channel);
+                    // push the maximal clique into the collection
+                    auxMRFs->push_back(maximalClique);
+                }
+            } else {
+                size_t i = START_ROW; // (which is the same as END_ROW)
+                for (size_t j = START_COL; j <= END_COL; ++j) {
+                    // top node in the maximal clique
+                    auto top = Node(data->at(channel).at(i * WIDTH + j), i * WIDTH + j);
+                    // bottom node in the maximal clique
+                    auto bottom = Node(data->at(channel).at((i + 1) * WIDTH + j), (i + 1) * WIDTH + j);
+                    // temp vector to store the maximal clique
+                    AuxMRF maximalClique;
+                    // push the nodes into the maximal clique
+                    maximalClique.addBaseNode(top);
+                    maximalClique.addBaseNode(bottom);
+                    maximalClique.set_channel(channel);
+                    // push the maximal clique into the collection
+                    auxMRFs->push_back(maximalClique);
                 }
             }
-            // Now i == END_ROW or i == END_ROW + 1. Make sure i == END_ROW.
-            i = END_ROW;
-            for (size_t j = 0; j <= END_COL; ++j) {
-                // top node in the maximal clique
-                auto top = Node(data->at(i * WIDTH + j), i * WIDTH + j);
-                // bottom node in the maximal clique
-                auto bottom = Node(data->at((i + 1) * WIDTH + j), (i + 1) * WIDTH + j);
-                // temp vector to store the maximal clique
-                AuxMRF maximalClique;
-                // push the nodes into the maximal clique
-                maximalClique.addBaseNode(top);
-                maximalClique.addBaseNode(bottom);
-                // push the maximal clique into the collection
-                auxMRFs->push_back(maximalClique);
-            }
-        } else {
-            size_t i = START_ROW; // (which is the same as END_ROW)
-            for (size_t j = START_COL; j <= END_COL; ++j) {
-                // top node in the maximal clique
-                auto top = Node(data->at(i * WIDTH + j), i * WIDTH + j);
-                // bottom node in the maximal clique
-                auto bottom = Node(data->at((i + 1) * WIDTH + j), (i + 1) * WIDTH + j);
-                // temp vector to store the maximal clique
-                AuxMRF maximalClique;
-                // push the nodes into the maximal clique
-                maximalClique.addBaseNode(top);
-                maximalClique.addBaseNode(bottom);
-                // push the maximal clique into the collection
-                auxMRFs->push_back(maximalClique);
-            }
-        }
+        } // end for( channel in CHANNELS )
     }
 }
 
@@ -287,30 +308,30 @@ void getMaximalCliques(std::vector<AuxMRF> *auxMRFs,
   @param HEIGHT height of the input image
  */
 void augmentCliques(std::vector<AuxMRF> *auxMRFs,
-                    const std::vector<uint8_t> *data,
+                    const std::vector< std::vector<uint8_t> > *data,
                     const size_t WIDTH,
                     const size_t HEIGHT) {
-    
+        
     for (auto &auxMRF: *auxMRFs) {
+        auto channel = auxMRF.getChannel();
         for (auto baseNode: auxMRF.getBaseNodes()) {
-            
             // add the base node's left neighbor to the augmented clique
             // i % WIDTH is 0 on the left edges
             if (baseNode.position % WIDTH != 0) {
-                auto augmentingNode = Node(data->at(baseNode.position - 1), baseNode.position - 1);
+                auto augmentingNode = Node(data->at(channel).at(baseNode.position - 1), baseNode.position - 1);
                 auxMRF.addAugmentingNode(augmentingNode);
             }
             
             // add the base node's top neighbor to the augmented clique
             if (baseNode.position >= WIDTH) { //top neighbor exists for every element after those in the first row
-                auto augmentingNode = Node(data->at(baseNode.position - WIDTH), baseNode.position - WIDTH);
+                auto augmentingNode = Node(data->at(channel).at(baseNode.position - WIDTH), baseNode.position - WIDTH);
                 auxMRF.addAugmentingNode(augmentingNode);
             }
 
             // add the base node's right neighbor to the augmented clique
             // i % (WIDTH - 1) is 0 for nodes on the right edges
             if ( ( ( (baseNode.position + 1) % WIDTH ) != 0) || ( baseNode.position == 0 ) ) {
-                auto augmentingNode = Node(data->at(baseNode.position + 1), baseNode.position + 1);
+                auto augmentingNode = Node(data->at(channel).at(baseNode.position + 1), baseNode.position + 1);
                 auxMRF.addAugmentingNode(augmentingNode);
             }
             
@@ -318,7 +339,7 @@ void augmentCliques(std::vector<AuxMRF> *auxMRFs,
             // Bottom neighbor exists for every element before those in the
             // last row.
             if (baseNode.position < (WIDTH * (HEIGHT - 1))) {
-                auto augmentingNode = Node(data->at(baseNode.position + WIDTH), baseNode.position + WIDTH);
+                auto augmentingNode = Node(data->at(channel).at(baseNode.position + WIDTH), baseNode.position + WIDTH);
                 auxMRF.addAugmentingNode(augmentingNode);
             }
         }
@@ -337,14 +358,15 @@ void augmentCliques(std::vector<AuxMRF> *auxMRFs,
   @param NUM_THREADS total number of threads running
  */
 void LAP (std::vector<AuxMRF> *auxMRFs,
-          const std::vector<uint8_t> *data,
+          const std::vector< std::vector<uint8_t> > *data,
           const size_t WIDTH,
           const size_t HEIGHT,
+          const size_t CHANNELS,
           const size_t THREAD_ID,
           const size_t NUM_THREADS) {
     
     // get the maximal cliques to create the auxiliary MRFs from
-    getMaximalCliques(auxMRFs, data, WIDTH, HEIGHT, THREAD_ID, NUM_THREADS);
+    getMaximalCliques(auxMRFs, data, WIDTH, HEIGHT, CHANNELS, THREAD_ID, NUM_THREADS);
     
     // augment the cliques to get the distributable auxiliary MRFs
     augmentCliques(auxMRFs, data, WIDTH, HEIGHT);

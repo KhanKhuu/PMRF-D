@@ -17,9 +17,10 @@
  @param NUM_THREADS total number of threads running
 */
 void LAP (std::vector<AuxMRF> *auxMRFs,
-          const std::vector<uint8_t> *data,
+          const std::vector< std::vector<uint8_t> > *data,
           const size_t WIDTH,
           const size_t HEIGHT,
+          const size_t CHANNELS,
           const size_t THREAD_ID,
           const size_t NUM_THREADS);
 

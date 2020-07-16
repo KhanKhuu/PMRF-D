@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 2.8)
+project( PMRF-D )
+find_package( OpenCV REQUIRED )
+include_directories( ${OpenCV_INCLUDE_DIRS} )
+add_executable( PMRF-D PMRF-D.cpp Utilities/io.cpp Utilities/LAP.cpp Model/Node.cpp Model/AuxMRF.cpp ICM/ICM.cpp)
+target_link_libraries( PMRF-D ${OpenCV_LIBS} )

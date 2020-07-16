@@ -37,3 +37,8 @@ std::vector<Node>& AuxMRF::getBaseNodes() {
 std::vector<Node>& AuxMRF::getAugmentingNodes() {
     return augmentingNodes;
 }
+
+bool AuxMRF::set_channel(size_t channel) {
+    this->channel = channel;
+    return true;
+}
