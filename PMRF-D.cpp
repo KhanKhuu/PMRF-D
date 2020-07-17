@@ -73,9 +73,9 @@ int main(int argc, const char** argv) {
     const size_t NUM_THREADS = argc > 2 ? atoi(argv[2]) : 1;
     
     // extract png image data
-    std::string image_path = cv::samples::findFile(file_name);
-    cv::Mat img = imread(image_path, cv::IMREAD_UNCHANGED);
-    
+    //std::string image_path = cv::samples::findFile(file_name);
+    //cv::Mat img = imread(image_path, cv::IMREAD_UNCHANGED);
+    cv::Mat img = imread(file_name, cv::IMREAD_UNCHANGED);
     // store the image width, height, and number of channels
     const size_t WIDTH = img.cols;
     const size_t HEIGHT = img.rows;
