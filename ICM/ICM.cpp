@@ -22,16 +22,16 @@ int quad(int pixelValue, int proposedValue) {
 /**
   Performs Iterative Conditional Modes denoising on the given vector of auxiliary MRFs.
 
-  @param auxMRFs graph partitions (use LAP for partitioning)
+  @param auxMRFs  graph partitions (use LAP for partitioning)
+  @param LAMBDA    weighting for the pairwise (smoothness) term
+  @param PSI_MAX  truncates the pairwise term (psi_max = 1 -> Potts)
 */
-void ICM(std::vector<AuxMRF> *auxMRFs) {
+void ICM(std::vector<AuxMRF> *auxMRFs, const double LAMBDA = 0.5, const int PSI_MAX = 5000) {
 	
 	int minEnergy;  // the lowest energy obtainable by changing the value
                     // of a pixel at a given position
 	int energy;     // energy at a given pixel in the image
-    uint8_t bestX;      // value for a pixel that results in the least energy
-    const double LAMBDA = 0.5;   // weighting for the pairwise (smoothness) term
-    const int PSI_MAX = 5000; // truncates the pairwise term (psi_max = 1 -> Potts)
+    uint8_t bestX;  // value for a pixel that results in the least energy
     
     for (auto &auxMRF: *auxMRFs) {
         for (auto &baseNode: auxMRF.getBaseNodes()) {

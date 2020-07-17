@@ -18,6 +18,6 @@ int quad(int p_val, int x_val);
 
   @param auxMRFs graph partitions (use LAP for partitioning)
 */
-void ICM(std::vector<AuxMRF> *auxMRFs);
+void ICM(std::vector<AuxMRF> *auxMRFs, const double LAMBDA, const int PSI_MAX);
 
 #endif //ICM_HPP

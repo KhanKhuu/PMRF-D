@@ -17,6 +17,8 @@ struct ThreadData {
     size_t WIDTH;
     size_t HEIGHT;
     size_t CHANNELS; // number of channels in the thread's image
+    double LAMBDA;
+    int PSI_MAX;
 };
 
 #endif /* ThreadData_hpp */

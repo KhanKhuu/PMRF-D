@@ -27,6 +27,16 @@ bool AuxMRF::addAugmentingNode(Node node) {
     return false;
 }
 
+bool AuxMRF::updateBaseNode(size_t position, uint8_t value) {
+    baseNodes.at(position) = value;
+    return true;
+}
+
+bool AuxMRF::updateAugmentingNode(size_t position, uint8_t value) {
+    augmentingNodes.at(position).value = value;
+    return true;
+}
+
 
 // get vector of base nodes
 std::vector<Node>& AuxMRF::getBaseNodes() {
