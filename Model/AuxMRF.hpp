@@ -31,6 +31,10 @@ public:
     // get vector of augmentingNodes
     std::vector<Node>& getAugmentingNodes();
     
+    bool updateBaseNode(size_t position, uint8_t value);
+    
+    bool updateAugmentingNode(size_t position, uint8_t value);
+    
     bool set_channel(size_t channel);
     
     size_t getChannel() { return this->channel; }
