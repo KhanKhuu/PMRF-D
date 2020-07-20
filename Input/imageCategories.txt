@@ -1,0 +1,5 @@
+Gauss
+Original
+Poisson
+Salt_Pepper
+Speckle

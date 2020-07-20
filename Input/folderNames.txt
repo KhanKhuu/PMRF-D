@@ -1,0 +1,14 @@
+CSBear
+CSBuilding
+CeramicSample
+EcoPots
+EngineeringBuilding
+EucalyptusFence
+ExampleManga
+GanaLegs
+GeiselLib
+Hammocks
+Sung
+TritonStatue
+UCSDFountain
+folderNames.txt
