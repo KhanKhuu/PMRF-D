@@ -1,4 +1,9 @@
 # PMRF-D
+
+## Background:
+see the PMRF-D paper for a complete explanation of PMRF-D including background and results:
+- https://github.com/KhanKhuu/PMRF-D/blob/master/Paper/SULI_Summer%202020_Research%20Paper_Larkins_Matthew.pdf
+
 ## Dependencies:
 1) OpenCV
 2) CMake
